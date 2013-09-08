@@ -1,0 +1,33 @@
+body {
+  padding: 0px;
+  margin: 0px;
+}
+
+#manaita {
+  border: 0px;
+  padding: 0px;
+  margin: 0px;
+  position: fixed;
+}
+
+.cell {
+  border: 0px;
+  display: block;
+  position: absolute;
+}
+
+.cell.nori {
+  background: black;
+}
+
+.cell.shari {
+  background: white;
+}
+
+.cell.toro {
+  background: red;
+}
+
+.cell.salmon {
+  background: pink;
+}
