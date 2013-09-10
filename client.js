@@ -174,9 +174,10 @@ $(function() {
           top: cellSize * $this.data('y'),
           left: cellSize * $this.data('x')
         },
-        animeDuration);
-        $this.css({
-          'z-index': 0
+        animeDuration, function() {
+          $this.css({
+            'z-index': 0
+          });
         });
       });
       $manaita.append($cell.attr('id', 'cell_' + (i + j).toString(16)));
