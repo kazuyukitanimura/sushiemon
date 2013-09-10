@@ -9,6 +9,7 @@ var NArray = function(sizes, defVal) {
     return new NArray(sizes, defVal);
   }
   Array.call(this);
+  this.sizes = sizes;
   var length = sizes.shift();
   if (length) {
     for (var i = length; i--;) {
@@ -67,8 +68,8 @@ var Grid = function(sizes) {
   NArray.call(this, sizes);
 };
 Grid.prototype = Object.create(NArray.prototype); // Inheritance ECMAScript 5 or shim for Object.create
-Grid.prototype.checkCombo = function() {
-
+Grid.prototype.checkCombo = function(menu, callback) {
+  menuKeys = Object.keys(menu);
 };
 
 /**
@@ -102,16 +103,20 @@ var NETAS = {
     pr: 10
   }
 };
-var MENU = {};
-MENU[NETAS.nori.prime * NETAS.shari.prime * NETAS.toro.prime] = {
+
+/**
+ * Global Variables
+ */
+var menu = {}; // menu can be changed depending on the level
+menu[NETAS.nori.prime * NETAS.shari.prime * NETAS.toro.prime] = {
   name: 'Toro Roll',
   price: 3
 };
-MENU[NETAS.nori.prime * NETAS.shari.prime * NETAS.salmon.prime] = {
+menu[NETAS.nori.prime * NETAS.shari.prime * NETAS.salmon.prime] = {
   name: 'Salmon Roll',
   price: 3
 };
-MENU[NETAS.nori.prime * NETAS.shari.prime * NETAS.unagi.prime * NETAS.avocado.prime] = {
+menu[NETAS.nori.prime * NETAS.shari.prime * NETAS.unagi.prime * NETAS.avocado.prime] = {
   name: 'Rock N Roll',
   price: 7
 };
