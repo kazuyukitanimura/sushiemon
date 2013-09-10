@@ -31,3 +31,11 @@ body {
 .cell.salmon {
   background: pink;
 }
+
+.cell.unagi {
+  background: saddlebrown;
+}
+
+.cell.avocado {
+  background: green;
+}

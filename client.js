@@ -1,3 +1,6 @@
+/**
+ * NArray class
+ */
 var NArray = function(sizes, defVal) {
   if (!Array.isArray(sizes)) {
     sizes = [sizes];
@@ -16,8 +19,7 @@ var NArray = function(sizes, defVal) {
     return defVal;
   }
 };
-// Inheritance ECMAScript 5 or shim for Object.create
-NArray.prototype = Object.create(Array.prototype);
+NArray.prototype = Object.create(Array.prototype); // Inheritance ECMAScript 5 or shim for Object.create
 NArray.prototype.swap = function(m, n) {
   if (!Array.isArray(m)) {
     m = [m];
@@ -38,14 +40,86 @@ NArray.prototype.swap = function(m, n) {
   tmpN[n[j]] = tmp;
 };
 
+/**
+ * Utilities
+ */
+var rand = function(max) { // does not include max
+  return Math.floor(Math.random() * max);
+};
 var chooseRandom = function() {
-  return this[Math.floor(Math.random() * this.length)];
+  // TODO respect the probability distribution
+  return this[rand(this.length)];
+};
+var chooseBiasedRandom = function() {
+  var len = this.length;
+  var a = rand(len);
+  var b = rand(len);
+  return this[Math.abs(a + b - (len - 1))]; // [higherst, ..., lowest] by standard deviation
+};
+
+/**
+ * Grid Class
+ */
+var Grid = function(sizes) {
+  if (! (this instanceof Grid)) { // enforcing new
+    return new Grid(sizes);
+  }
+  NArray.call(this, sizes);
+};
+Grid.prototype = Object.create(NArray.prototype); // Inheritance ECMAScript 5 or shim for Object.create
+Grid.prototype.checkCombo = function() {
+
+};
+
+/**
+ * Global Consants
+ */
+var X = 8;
+var NETAS = {
+  // name: {prime: prime number, pr: probaility in percent}
+  nori: {
+    prime: 2,
+    pr: 25
+  },
+  shari: {
+    prime: 3,
+    pr: 25
+  },
+  toro: {
+    prime: 5,
+    pr: 15
+  },
+  salmon: {
+    prime: 7,
+    pr: 15
+  },
+  unagi: {
+    prime: 11,
+    pr: 10
+  },
+  avocado: {
+    prime: 13,
+    pr: 10
+  }
+};
+var MENU = {};
+MENU[NETAS.nori.prime * NETAS.shari.prime * NETAS.toro.prime] = {
+  name: 'Toro Roll',
+  price: 3
+};
+MENU[NETAS.nori.prime * NETAS.shari.prime * NETAS.salmon.prime] = {
+  name: 'Salmon Roll',
+  price: 3
+};
+MENU[NETAS.nori.prime * NETAS.shari.prime * NETAS.unagi.prime * NETAS.avocado.prime] = {
+  name: 'Rock N Roll',
+  price: 7
 };
 
 $(function() {
-  var X = 8;
-  var netas = ['nori', 'shari', 'toro', 'salmon'];
-  netas.chooseRandom = chooseRandom;
+  var netas = Object.keys(NETAS);
+  //netas.chooseRandom = chooseRandom;
+  netas.chooseRandom = chooseBiasedRandom;
   var $window = $(window);
   var manaitaSize = Math.min($window.height(), $window.width());
   var $manaita = $('#manaita');
@@ -56,7 +130,7 @@ $(function() {
   var cellSize = manaitaSize / X;
   var cellMoveBound = cellSize / 4;
   var magnifier = 10;
-  var grid = new NArray([X, X]);
+  var grid = new Grid([X, X]);
   var animeDuration = 200;
   var swapCell = function(cA, cB) {
     var ax = cA[1];
@@ -80,7 +154,7 @@ $(function() {
     },
     animeDuration);
     grid.swap(cA, cB);
-  }
+  };
   for (var i = 0; i < X; i++) {
     for (var j = 0; j < X; j++) {
       var $cell = $('<div></div>', {
@@ -168,7 +242,7 @@ $(function() {
         $this.css({
           'z-index': 99
         });
-      }).mouseup(function(e) {
+      }).on('mouseup mouseout mouseleave', function(e) {
         e.preventDefault();
         var $this = $(this);
         $window.unbind('mousemove');
