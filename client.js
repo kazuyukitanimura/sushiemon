@@ -1,47 +1,49 @@
+var NArray = function(sizes, defVal) {
+  if (!Array.isArray(sizes)) {
+    sizes = [sizes];
+  }
+  if (! (this instanceof NArray)) { // enforcing new
+    return new NArray(sizes, defVal);
+  }
+  Array.call(this);
+  var length = sizes.shift();
+  if (length) {
+    for (var i = length; i--;) {
+      this.push(new NArray(sizes.slice(), defVal));
+    }
+    return this;
+  } else {
+    return defVal;
+  }
+};
+// Inheritance ECMAScript 5 or shim for Object.create
+NArray.prototype = Object.create(Array.prototype);
+NArray.prototype.swap = function(m, n) {
+  if (!Array.isArray(m)) {
+    m = [m];
+  }
+  if (!Array.isArray(n)) {
+    n = [n];
+  }
+  var tmpM = this;
+  for (var i = 0, il = m.length - 1; i < il; i++) {
+    tmpM = tmpM[m[i]];
+  }
+  var tmpN = this;
+  for (var j = 0, jl = m.length - 1; j < jl; j++) {
+    tmpN = tmpN[n[j]];
+  }
+  var tmp = tmpM[m[i]];
+  tmpM[m[i]] = tmpN[n[j]];
+  tmpN[n[j]] = tmp;
+};
+
+var chooseRandom = function() {
+  return this[Math.floor(Math.random() * this.length)];
+};
+
 $(function() {
-  var chooseRandom = function() {
-    return this[Math.floor(Math.random() * this.length)];
-  };
-  var NArray = function(sizes, defVal) {
-    var length = sizes.shift();
-    if (length) {
-      var newArray = [];
-      for (var i = length; i--;) {
-        newArray.push(NArray(sizes.slice(), defVal));
-      }
-      return newArray;
-    } else {
-      return defVal;
-    }
-  };
-  var createNArray = function(sizes, defVal) {
-    if (!Array.isArray(sizes)) {
-      sizes = [sizes];
-    }
-    var narray = NArray(sizes, defVal);
-    narray.swap = function(m, n) {
-      if (!Array.isArray(m)) {
-        m = [m];
-      }
-      if (!Array.isArray(n)) {
-        n = [n];
-      }
-      var tmpM = this;
-      for (var i = 0, il = m.length - 1; i < il; i++) {
-        tmpM = tmpM[m[i]];
-      }
-      var tmpN = this;
-      for (var j = 0, jl = m.length - 1; j < jl; j++) {
-        tmpN = tmpN[n[j]];
-      }
-      var tmp = tmpM[m[i]];
-      tmpM[m[i]] = tmpN[n[j]];
-      tmpN[n[j]] = tmp;
-    };
-    return narray;
-  };
   var X = 8;
-  var Y = 8;
   var netas = ['nori', 'shari', 'toro', 'salmon'];
   netas.chooseRandom = chooseRandom;
   var $window = $(window);
@@ -54,7 +56,7 @@ $(function() {
   var cellSize = manaitaSize / X;
   var cellMoveBound = cellSize / 4;
   var magnifier = 10;
-  var grid = createNArray([Y, X]);
+  var grid = new NArray([X, X]);
   var animeDuration = 200;
   var swapCell = function(cA, cB) {
     var ax = cA[1];
@@ -79,7 +81,7 @@ $(function() {
     animeDuration);
     grid.swap(cA, cB);
   }
-  for (var i = 0; i < Y; i++) {
+  for (var i = 0; i < X; i++) {
     for (var j = 0; j < X; j++) {
       var $cell = $('<div></div>', {
         'class': 'cell'
