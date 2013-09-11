@@ -1,9 +1,35 @@
 /**
+ * Utilities
+ */
+var isArray = Array.isArray;
+var isInt = function(n) {
+  return typeof n === 'number' && n % 1 === 0;
+};
+var isFunction = function(func) {
+  return func instanceof Function;
+};
+var rand = function(max) { // does not include max
+  return Math.floor(Math.random() * max);
+};
+var chooseRandom = function() {
+  return this[rand(this.length)];
+};
+var chooseBiasedRandom = function() {
+  var len = this.length;
+  var a = rand(len);
+  var b = rand(len);
+  return this[Math.abs(a + b - (len - 1))]; // [higherst, ..., lowest] by standard deviation
+};
+
+/**
  * NArray class
  */
 var NArray = function(sizes, defVal) {
-  if (!Array.isArray(sizes)) {
+  if (!isArray(sizes)) {
     sizes = [sizes];
+  }
+  if (!sizes.length) {
+    return defVal;
   }
   if (! (this instanceof NArray)) { // enforcing new
     return new NArray(sizes, defVal);
@@ -11,21 +37,16 @@ var NArray = function(sizes, defVal) {
   Array.call(this);
   this.sizes = sizes;
   var length = sizes.shift();
-  if (length) {
-    for (var i = length; i--;) {
-      this.push(new NArray(sizes.slice(), defVal));
-    }
-    return this;
-  } else {
-    return defVal;
+  for (var i = length; i--;) {
+    this.push(NArray(sizes.slice(), defVal));
   }
 };
 NArray.prototype = Object.create(Array.prototype); // Inheritance ECMAScript 5 or shim for Object.create
 NArray.prototype.swap = function(m, n) {
-  if (!Array.isArray(m)) {
+  if (!isArray(m)) {
     m = [m];
   }
-  if (!Array.isArray(n)) {
+  if (!isArray(n)) {
     n = [n];
   }
   var tmpM = this;
@@ -40,22 +61,28 @@ NArray.prototype.swap = function(m, n) {
   tmpM[m[i]] = tmpN[n[j]];
   tmpN[n[j]] = tmp;
 };
-
-/**
- * Utilities
- */
-var rand = function(max) { // does not include max
-  return Math.floor(Math.random() * max);
-};
-var chooseRandom = function() {
-  // TODO respect the probability distribution
-  return this[rand(this.length)];
-};
-var chooseBiasedRandom = function() {
-  var len = this.length;
-  var a = rand(len);
-  var b = rand(len);
-  return this[Math.abs(a + b - (len - 1))]; // [higherst, ..., lowest] by standard deviation
+NArray.prototype.dimEach = function(indices, callback, thisArg) { // the callback takes element
+  if (isFunction(indices)) {
+    thisArg = callback;
+    callback = indices;
+  } else if (!isArray(indices)) {
+    indices = [indices];
+  }
+  thisArg = thisArg || this;
+  var i = indices.shift();
+  var l = i + 1;
+  if (!isInt(i)) {
+    i = 0;
+    l = this.length;
+  }
+  for (; i < l; i++) {
+    var elem = this[i];
+    if (elem instanceof NArray) {
+      elem.dimEach(indices.slice(), callback, thisArg);
+    } else {
+      callback.call(thisArg, elem);
+    }
+  }
 };
 
 /**
@@ -70,37 +97,42 @@ var Grid = function(sizes) {
 Grid.prototype = Object.create(NArray.prototype); // Inheritance ECMAScript 5 or shim for Object.create
 Grid.prototype.checkCombo = function(menu, callback) {
   menuKeys = Object.keys(menu);
+  var sizes = this.sizes;
+  var sizeLen = sizes.length;
+  for (var d = 0; d < sizeLen; d++) {
+    var indices = new Array(sizeLen);
+    for (var i = 0, l = sizes[d]; i < l; i++) {
+      indices[d] = i;
+      this.dimEach(indices, function() {}); // TODO check the combination
+    }
+  }
 };
 
 /**
  * Global Consants
  */
 var X = 8;
+var PRIMES = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59]; // TODO add more
+var p = 0;
 var NETAS = {
-  // name: {prime: prime number, pr: probaility in percent}
+  // name: {prime: prime number}
   nori: {
-    prime: 2,
-    pr: 25
+    prime: PRIMES[p++]
   },
   shari: {
-    prime: 3,
-    pr: 25
+    prime: PRIMES[p++]
   },
   toro: {
-    prime: 5,
-    pr: 15
+    prime: PRIMES[p++]
   },
   salmon: {
-    prime: 7,
-    pr: 15
+    prime: PRIMES[p++]
   },
   unagi: {
-    prime: 11,
-    pr: 10
+    prime: PRIMES[p++]
   },
   avocado: {
-    prime: 13,
-    pr: 10
+    prime: PRIMES[p++]
   }
 };
 
