@@ -65,13 +65,16 @@ NArray.prototype.dimEach = function(indices, callback, thisArg) { // the callbac
   if (isFunction(indices)) {
     thisArg = callback;
     callback = indices;
+    indices = [];
   } else if (!isArray(indices)) {
     indices = [indices];
   }
   thisArg = thisArg || this;
   var i = indices.shift();
-  var l = i + 1;
-  if (!isInt(i)) {
+  var l;
+  if (isInt(i)) {
+    l = i + 1;
+  } else {
     i = 0;
     l = this.length;
   }
@@ -86,24 +89,58 @@ NArray.prototype.dimEach = function(indices, callback, thisArg) { // the callbac
 };
 
 /**
+ * Sized Array Class
+ */
+var SizedArray = function(maxLength) {
+  if (! (this instanceof SizedArray)) { // enforcing new
+    return new SizedArray(maxLength);
+  }
+  Array.call(this);
+  this.maxLength = maxLength;
+};
+SizedArray.prototype = Object.create(Array.prototype); // Inheritance ECMAScript 5 or shim for Object.create
+SizedArray.prototype.push = function() {
+  Array.prototype.push.call(this, arguments);
+  if (this.length > this.maxLength) {
+    this.shift();
+  }
+  return this.length;
+};
+SizedArray.prototype.mapD = function(callback, thisArg) {
+  for (var i = this.length; i--;) {
+    this[i] = callback.call(thisArg || this, this[i]);
+  }
+};
+
+/**
  * Grid Class
  */
-var Grid = function(sizes) {
+var Grid = function(sizes, maxCombo) {
   if (! (this instanceof Grid)) { // enforcing new
     return new Grid(sizes);
   }
   NArray.call(this, sizes);
+  this.maxCombo = maxCombo;
 };
 Grid.prototype = Object.create(NArray.prototype); // Inheritance ECMAScript 5 or shim for Object.create
 Grid.prototype.checkCombo = function(menu, callback) {
   menuKeys = Object.keys(menu);
+  var maxCombo = this.maxCombo;
   var sizes = this.sizes;
   var sizeLen = sizes.length;
   for (var d = 0; d < sizeLen; d++) {
     var indices = new Array(sizeLen);
     for (var i = 0, l = sizes[d]; i < l; i++) {
       indices[d] = i;
-      this.dimEach(indices, function() {}); // TODO check the combination
+      var tmpSA = new SizedArray(maxCombo);
+      this.dimEach(indices, function($cell) {
+        var prime = $cell.data('neta').prime;
+        tmpSA.mapD(function(x) {
+          return x * prime;
+        });
+        tmpSA.push(prime);
+        // check overwrapping data in tmpSA and menu
+      });
     }
   }
 };
@@ -197,11 +234,13 @@ $(function() {
       var $cell = $('<div></div>', {
         'class': 'cell'
       });
-      $cell.addClass(netas.chooseRandom());
+      var neta = netas.chooseRandom();
       $cell.data({
         x: j,
-        y: i
+        y: i,
+        neta: NETAS[neta]
       });
+      $cell.addClass(neta);
       $cell.css({
         height: cellSize,
         width: cellSize,
