@@ -1,4 +1,9 @@
 /**
+ * kazuyukitanimura all rights reserved 2013
+ * TODO scope everything
+ */
+
+/**
  * Utilities
  */
 var isArray = Array.isArray;
@@ -100,7 +105,7 @@ var SizedArray = function(maxLength) {
 };
 SizedArray.prototype = Object.create(Array.prototype); // Inheritance ECMAScript 5 or shim for Object.create
 SizedArray.prototype.push = function() {
-  Array.prototype.push.call(this, arguments);
+  Array.prototype.push.apply(this, arguments);
   if (this.length > this.maxLength) {
     this.shift();
   }
@@ -123,14 +128,13 @@ var Grid = function(sizes, maxCombo) {
   this.maxCombo = maxCombo;
 };
 Grid.prototype = Object.create(NArray.prototype); // Inheritance ECMAScript 5 or shim for Object.create
-Grid.prototype.checkCombo = function(menu, callback) {
-  menuKeys = Object.keys(menu);
+Grid.prototype.checkCombo = function(menu, callback) { // return true if it finds the combo
   var maxCombo = this.maxCombo;
   var sizes = this.sizes;
   var sizeLen = sizes.length;
-  for (var d = 0; d < sizeLen; d++) {
+  for (var d = 0; d < sizeLen; d++) { // test horizontally first
     var indices = new Array(sizeLen);
-    for (var i = 0, l = sizes[d]; i < l; i++) {
+    for (var i = sizes[d]; i--;) { // check from the bottom
       indices[d] = i;
       var tmpSA = new SizedArray(maxCombo);
       this.dimEach(indices, function($cell) {
@@ -139,10 +143,19 @@ Grid.prototype.checkCombo = function(menu, callback) {
           return x * prime;
         });
         tmpSA.push(prime);
+        for (var j = 0, l = tmpSA.length; j < l; j++) {
+          var combo = tmpSA[j];
+          if (menu.hasOwnProperty(combo)) { // found a combo at j !
+            cells = [$cell]; // TODO find all cells to delete
+            callback(cells, menu[combo]);
+            return true;
+          }
+        }
         // check overwrapping data in tmpSA and menu
       });
     }
   }
+  return false;
 };
 
 /**
@@ -172,11 +185,12 @@ var NETAS = {
     prime: PRIMES[p++]
   }
 };
+var MAX_COMBO = 4;
 
 /**
  * Global Variables
  */
-var menu = {}; // menu can be changed depending on the level
+var menu = {}; // menu can be changed depending on the level, the key should be a product of prime numbers
 menu[NETAS.nori.prime * NETAS.shari.prime * NETAS.toro.prime] = {
   name: 'Toro Roll',
   price: 3
@@ -204,7 +218,7 @@ $(function() {
   var cellSize = manaitaSize / X;
   var cellMoveBound = cellSize / 4;
   var magnifier = 10;
-  var grid = new Grid([X, X]);
+  var grid = new Grid([X, X], MAX_COMBO);
   var animeDuration = 200;
   var swapCell = function(cA, cB) {
     var ax = cA[1];
@@ -228,6 +242,9 @@ $(function() {
     },
     animeDuration);
     grid.swap(cA, cB);
+    while (grid.checkCombo(menu, function(cells, combo) {
+      console.log(combo)
+    })){};
   };
   for (var i = 0; i < X; i++) {
     for (var j = 0; j < X; j++) {
