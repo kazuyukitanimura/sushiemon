@@ -128,10 +128,11 @@ var Grid = function(sizes, maxCombo) {
   this.maxCombo = maxCombo;
 };
 Grid.prototype = Object.create(NArray.prototype); // Inheritance ECMAScript 5 or shim for Object.create
-Grid.prototype.checkCombo = function(menu, callback) { // return true if it finds the combo
+Grid.prototype.checkCombo = function(menu) {
   var maxCombo = this.maxCombo;
   var sizes = this.sizes;
   var sizeLen = sizes.length;
+  var res = [];
   for (var d = 0; d < sizeLen; d++) { // test horizontally first
     var indices = new Array(sizeLen);
     for (var i = sizes[d]; i--;) { // check from the bottom
@@ -147,15 +148,17 @@ Grid.prototype.checkCombo = function(menu, callback) { // return true if it find
           var combo = tmpSA[j];
           if (menu.hasOwnProperty(combo)) { // found a combo at j !
             cells = [$cell]; // TODO find all cells to delete
-            callback(cells, menu[combo]);
-            return true;
+            res.push({
+              cells: cells,
+              menuVal: menu[combo]
+            });
           }
         }
         // check overwrapping data in tmpSA and menu
       });
     }
   }
-  return false;
+  return res;
 };
 
 /**
@@ -242,9 +245,12 @@ $(function() {
     },
     animeDuration);
     grid.swap(cA, cB);
-    while (grid.checkCombo(menu, function(cells, combo) {
-      console.log(combo)
-    })){};
+    var combos;
+    do {
+      combos = grid.checkCombo(menu);
+      console.log(combos);
+      break; // this becomes an infinity loop during test
+    } while (combos);
   };
   for (var i = 0; i < X; i++) {
     for (var j = 0; j < X; j++) {
