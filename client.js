@@ -228,29 +228,31 @@ $(function() {
     var ay = cA[0];
     var bx = cB[1];
     var by = cB[0];
-    var a = grid[ay][ax];
-    var b = grid[by][bx];
-    a.data('x', bx);
-    a.data('y', by);
-    b.data('x', ax);
-    b.data('y', ay);
-    a.animate({
-      top: cellSize * by,
-      left: cellSize * bx
-    },
-    animeDuration);
-    b.animate({
-      top: cellSize * ay,
-      left: cellSize * ax
-    },
-    animeDuration);
-    grid.swap(cA, cB);
-    var combos;
-    do {
-      combos = grid.checkCombo(menu);
-      console.log(combos);
-      break; // this becomes an infinity loop during test
-    } while (combos);
+    var a = grid[ay] && grid[ay][ax];
+    var b = grid[by] && grid[by][bx];
+    if (a && b) {
+      a.data('x', bx);
+      a.data('y', by);
+      b.data('x', ax);
+      b.data('y', ay);
+      a.animate({
+        top: cellSize * by,
+        left: cellSize * bx
+      },
+      animeDuration);
+      b.animate({
+        top: cellSize * ay,
+        left: cellSize * ax
+      },
+      animeDuration);
+      grid.swap(cA, cB);
+      var combos;
+      do {
+        combos = grid.checkCombo(menu);
+        console.log(combos);
+        break; // this becomes an infinity loop during test
+      } while (combos);
+    }
   };
   for (var i = 0; i < X; i++) {
     for (var j = 0; j < X; j++) {
