@@ -232,10 +232,10 @@ $(function() {
     $cell.data('x', x);
     $cell.data('y', y);
     $cell.animate({
-        top: cellSize * y,
-        left: cellSize * x
-      },
-      animeDuration);
+      top: cellSize * y,
+      left: cellSize * x
+    },
+    animeDuration);
   };
   var swapCell = function(cA, cB) {
     var ax = cA[1];
@@ -351,9 +351,7 @@ $(function() {
           top: cellSize * $this.data('y'),
           left: cellSize * $this.data('x')
         },
-        animeDuration, function() {
-          $this.removeClass('front');
-        });
+        animeDuration, $this.removeClass.bind($this, 'front'));
       });
       $manaita.append($cell.attr('id', 'cell_' + (i + j).toString(16)));
       grid[i][j] = $cell;
