@@ -75,6 +75,8 @@ NArray.prototype.dimEach = function(indices, callback, thisArg) { // the callbac
     indices = [];
   } else if (!isArray(indices)) {
     indices = [indices];
+  } else {
+    indices = indices.slice(); // deep clone
   }
   thisArg = thisArg || this;
   var i = indices.shift();
@@ -88,7 +90,7 @@ NArray.prototype.dimEach = function(indices, callback, thisArg) { // the callbac
   for (; i < l; i++) {
     var elem = this[i];
     if (elem instanceof NArray) {
-      elem.dimEach(indices.slice(), callback, thisArg);
+      elem.dimEach(indices, callback, thisArg);
     } else {
       callback.call(thisArg, elem);
     }
