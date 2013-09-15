@@ -32,6 +32,8 @@ var chooseBiasedRandom = function() {
 var NArray = function(sizes, defVal) {
   if (!isArray(sizes)) {
     sizes = [sizes];
+  } else {
+    sizes = sizes.slice(); // deep clone
   }
   if (!sizes.length) {
     return defVal;
@@ -40,10 +42,10 @@ var NArray = function(sizes, defVal) {
     return new NArray(sizes, defVal);
   }
   Array.call(this);
-  this.sizes = sizes;
+  this.sizes = sizes.slice(); // deep clone one more time
   var length = sizes.shift();
   for (var i = length; i--;) {
-    this.push(NArray(sizes.slice(), defVal));
+    this.push(NArray(sizes, defVal));
   }
 };
 NArray.prototype = Object.create(Array.prototype); // Inheritance ECMAScript 5 or shim for Object.create
@@ -137,24 +139,25 @@ Grid.prototype.checkCombo = function(menu) {
     var indices = new Array(sizeLen);
     for (var i = sizes[d]; i--;) { // check from the bottom
       indices[d] = i;
-      var tmpSA = new SizedArray(maxCombo);
+      var productSA = new SizedArray(maxCombo);
+      var cellSA = new SizedArray(maxCombo);
       this.dimEach(indices, function($cell) {
         var prime = $cell.data('neta').prime;
-        tmpSA.mapD(function(x) {
+        productSA.mapD(function(x) {
           return x * prime;
         });
-        tmpSA.push(prime);
-        for (var j = 0, l = tmpSA.length; j < l; j++) {
-          var combo = tmpSA[j];
-          if (menu.hasOwnProperty(combo)) { // found a combo at j !
-            cells = [$cell]; // TODO find all cells to delete
+        productSA.push(prime);
+        cellSA.push($cell);
+        for (var j = 0, l = productSA.length; j < l; j++) {
+          var product = productSA[j];
+          if (menu.hasOwnProperty(product)) { // found a product at j !
+            cells = cellSA.slice(j);
             res.push({
               cells: cells,
-              menuVal: menu[combo]
+              menuVal: menu[product]
             });
           }
         }
-        // check overwrapping data in tmpSA and menu
       });
     }
   }
