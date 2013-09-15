@@ -228,6 +228,15 @@ $(function() {
   var magnifier = 10;
   var grid = new Grid([X, X], MAX_COMBO);
   var animeDuration = 200;
+  var moveCell = function($cell, x, y) {
+    $cell.data('x', x);
+    $cell.data('y', y);
+    $cell.animate({
+        top: cellSize * y,
+        left: cellSize * x
+      },
+      animeDuration);
+  };
   var swapCell = function(cA, cB) {
     var ax = cA[1];
     var ay = cA[0];
@@ -236,20 +245,8 @@ $(function() {
     var a = grid[ay] && grid[ay][ax];
     var b = grid[by] && grid[by][bx];
     if (a && b) {
-      a.data('x', bx);
-      a.data('y', by);
-      b.data('x', ax);
-      b.data('y', ay);
-      a.animate({
-        top: cellSize * by,
-        left: cellSize * bx
-      },
-      animeDuration);
-      b.animate({
-        top: cellSize * ay,
-        left: cellSize * ax
-      },
-      animeDuration);
+      moveCell(a, bx, by);
+      moveCell(b, ax, ay);
       grid.swap(cA, cB);
       var combos;
       do {
