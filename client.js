@@ -345,9 +345,7 @@ $(function() {
             });
           }
         });
-        $this.css({
-          'z-index': 99
-        });
+        $this.addClass('front');
       }).on('mouseup mouseout mouseleave', function(e) {
         e.preventDefault();
         var $this = $(this);
@@ -357,9 +355,7 @@ $(function() {
           left: cellSize * $this.data('x')
         },
         animeDuration, function() {
-          $this.css({
-            'z-index': 0
-          });
+          $this.removeClass('front');
         });
       });
       $manaita.append($cell.attr('id', 'cell_' + (i + j).toString(16)));

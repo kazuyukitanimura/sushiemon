@@ -40,3 +40,7 @@ body {
 .cell.avocado {
   background: green;
 }
+
+.front {
+  z-index: 99;
+}
