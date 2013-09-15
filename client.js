@@ -163,7 +163,10 @@ Grid.prototype.checkCombo = function(menu) {
       });
     }
   }
-  return res;
+  var sortFunc = function(a, b) {
+    return b.menuVal.price - a.menuVal.price;
+  };
+  return res.sort(sortFunc);
 };
 
 /**
@@ -251,7 +254,7 @@ $(function() {
       var combos;
       do {
         combos = grid.checkCombo(menu);
-        console.log(combos);
+        console.log(combos); // TODO delete cells
         break; // this becomes an infinity loop during test
       } while (combos);
     }
