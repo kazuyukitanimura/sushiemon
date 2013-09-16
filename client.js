@@ -240,6 +240,29 @@ $(function() {
     },
     animeDuration);
   };
+  var netasStr = netas.join(' ');
+  var deleteCell = function($cell) {
+    $cell.removeClass(netasStr);
+    var $tmpCell = $cell;
+    for (var x = $cell.data('x'), y = $cell.data('y'); y--;) {
+      var cellAbove = grid[x][y];
+      var yPlusOne = y + 1;
+      moveCell(cellAbove, x, yPlusOne);
+      grid[x][yPlusOne] = cellAbove;
+    }
+    grid[x][0] = $tmpCell;
+    $tmpCell.css({
+      top: 0,
+      left: cellSize * x
+    });
+    var neta = netas.chooseRandom();
+    $tmpCell.data({
+      x: x,
+      y: 0,
+      neta: NETAS[neta]
+    });
+    $cell.addClass(neta);
+  };
   var swapCell = function(cA, cB) {
     var ax = cA[1];
     var ay = cA[0];
@@ -254,9 +277,15 @@ $(function() {
       var combos;
       do {
         combos = grid.checkCombo(menu);
-        console.log(combos); // TODO delete cells
-        break; // this becomes an infinity loop during test
-      } while (combos);
+        console.log(combos);
+        for (var i = 0, il = combos.length; i < il; i++) {
+          var cells = combos[i].cells;
+          for (var j = 0, jl = cells.length; j < jl; j++) {
+            var $cell = cells[j];
+            deleteCell($cell); // FIXME there must be overlapped cells that should be deleted
+          }
+        }
+      } while (combos.length);
     }
   };
   for (var i = 0; i < X; i++) {
