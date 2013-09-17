@@ -170,6 +170,17 @@ Grid.prototype.checkCombo = function(menu) {
 };
 
 /**
+ * Cell Class
+ */
+var Cell = function(i, j, netas, cellSize, grid) {
+  if (! (this instanceof Cell)) { // enforcing new
+    return new Cell();
+  }
+  $('<div class="cell"></div>', this); // We cannot do this, change this to plugin
+};
+Cell.prototype = Object.create($.prototype); // Inheritance ECMAScript 5 or shim for Object.create
+
+/**
  * Global Consants
  */
 var X = 8;
@@ -258,7 +269,8 @@ $(function() {
       $cell.animate({
         top: 0,
         left: cellSize * x
-      }, 0); // instead of css() to enque
+      },
+      0); // instead of css() to enque
       $cell.data({
         x: x,
         y: 0
