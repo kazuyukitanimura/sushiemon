@@ -241,27 +241,42 @@ $(function() {
     animeDuration);
   };
   var netasStr = netas.join(' ');
-  var deleteCell = function($cell) {
-    $cell.removeClass(netasStr);
-    var $tmpCell = $cell;
-    for (var x = $cell.data('x'), y = $cell.data('y'); y--;) {
-      var cellAbove = grid[x][y];
-      var yPlusOne = y + 1;
-      moveCell(cellAbove, x, yPlusOne);
-      grid[x][yPlusOne] = cellAbove;
+  var deleteCells = function(cells) {
+    if (!isArray(cells)) {
+      cells = [cells];
     }
-    grid[x][0] = $tmpCell;
-    $tmpCell.css({
-      top: 0,
-      left: cellSize * x
-    });
-    var neta = netas.chooseRandom();
-    $tmpCell.data({
-      x: x,
-      y: 0,
-      neta: NETAS[neta]
-    });
-    $cell.addClass(neta);
+    for (var i = cells.length; i--;) {
+      var $cell = cells[i];
+      $cell.removeClass(netasStr); // FIXME there must be overlapped cells that should be deleted
+      for (var x = $cell.data('x'), y = $cell.data('y'); y--;) {
+        var cellAbove = grid[y][x];
+        var yPlusOne = y + 1;
+        moveCell(cellAbove, x, yPlusOne);
+        grid[yPlusOne][x] = cellAbove;
+      }
+      grid[0][x] = $cell;
+      $cell.css({
+        top: 0,
+        left: cellSize * x
+      });
+      $cell.data({
+        x: x,
+        y: 0
+      });
+    }
+  };
+  var reuseCells = function(cells) {
+    if (!isArray(cells)) {
+      cells = [cells];
+    }
+    for (var i = cells.length; i--;) {
+      var $cell = cells[i];
+      var neta = netas.chooseRandom();
+      $cell.data({
+        neta: NETAS[neta]
+      });
+      $cell.addClass(neta);
+    }
   };
   var swapCell = function(cA, cB) {
     var ax = cA[1];
@@ -278,12 +293,11 @@ $(function() {
       do {
         combos = grid.checkCombo(menu);
         console.log(combos);
-        for (var i = 0, il = combos.length; i < il; i++) {
-          var cells = combos[i].cells;
-          for (var j = 0, jl = cells.length; j < jl; j++) {
-            var $cell = cells[j];
-            deleteCell($cell); // FIXME there must be overlapped cells that should be deleted
-          }
+        for (var i = 0, l = combos.length; i < l; i++) {
+          deleteCells(combos[i].cells);
+        }
+        for (i = 0, l = combos.length; i < l; i++) {
+          reuseCells(combos[i].cells);
         }
       } while (combos.length);
     }
