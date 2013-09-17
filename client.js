@@ -255,10 +255,10 @@ $(function() {
         grid[yPlusOne][x] = cellAbove;
       }
       grid[0][x] = $cell;
-      $cell.css({
+      $cell.animate({
         top: 0,
         left: cellSize * x
-      });
+      }, 0); // instead of css() to enque
       $cell.data({
         x: x,
         y: 0
